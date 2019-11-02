@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Burick Breaker</title>
+	<style type="text/css">
+		#myCanvas{
+				border: 2px solid #000000;
+				margin: auto;
+			    display: block;
+			    position: absolute;
+			    top: 0;
+			    bottom: 0;
+			    left: 0;
+			    right: 0;
+
+		}
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas" width="550" height="650"></canvas>
+	<script>
+		var canvas = document.getElementById("myCanvas");
+		var ctx = canvas.getContext("2d");
+		
+		const width =550;
+		const height =650;	
+
+		document.getElementById("myCanvas").style.background = "url('img/bg_image.jpg')";
+
+
+		var paddle ={
+			x : width/2 - 100/2,
+			y : height - 20 - 50,
+			width : 100,
+			height : 20 
+		};
+
+		var bola = {
+				x: 400,
+				y: 300,
+				warna: "#FF0000",
+				sudut: 0,
+				offset: 0
+			};
+
+
+		window.addEventListener("keydown", keydn, true);
+		window.addEventListener("keyup", keyup, true);
+		var yangDipencet = {};
+		function keydn(e){
+
+			yangDipencet[e.keyCode] = true;
+
+			if(yangDipencet[39]==true && paddle.x + paddle.width < width){
+
+				paddle.x +=10;
+
+			}else if(yangDipencet[37]==true && paddle.x > 0){
+
+				paddle.x -=10;
+				
+			}
+		}
+
+		function keyup(e){
+			delete yangDipencet[e.keyCode];
+		}
+
+
+		function gambarkan(){
+			ctx.clearRect(0,0,width,height);
+
+
+			ctx.beginPath();
+			//gambar paddle
+			ctx.rect(paddle.x, paddle.y, paddle.width, paddle.height);
+			ctx.fillStyle= "red";
+			ctx.fill();
+			ctx.stroke();
+			//gambar bola
+			ctx.arc(paddle.x+50,paddle.y-17,15,0,2*Math.PI, false);		
+			ctx.closePath();
+			ctx.fillStyle = bola.warna;
+
+			ctx.fill();
+			
+
+	
+		}
+
+		setInterval(gambarkan,1);
+	</script>
+
+</body>
+</html>
