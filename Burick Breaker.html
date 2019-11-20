@@ -27,22 +27,25 @@
 
 		document.getElementById("myCanvas").style.background = "url('img/bg_image.png')";
 
-
 		var paddle ={
 			x : width/2 - 100/2,
 			y : height - 20 - 50,
 			width : 80,
-			height : 10 
+			height : 10
 		};
-
+		var jarijariBola = 10;
 		var bola = {
-				x: paddle.x+40,
-				y: paddle.y-10,
+				x: (width/2 - 100/2)+40,
+				y: height - 80,
 				warna: "#FF0000",
 				sudut: 0,
 				offset: 0
 			};
 
+		function euDist(objek1, objek2){
+				jarak = Math.sqrt(Math.pow(objek1.x-objek2.x,2) + Math.pow(objek1.y-objek2.y,2));
+				return jarak;
+			}
 
 		window.addEventListener("keydown", keydn, true);
 		window.addEventListener("keyup", keyup, true);
@@ -52,18 +55,20 @@
 			yangDipencet[e.keyCode] = true;
 
 			if(yangDipencet[39]==true && paddle.x + paddle.width < width){
-
 				paddle.x +=10;
-
+				if((bola.y+10)==paddle.y){
+					bola.x +=10
+				}
 			}
 			if(yangDipencet[37]==true && paddle.x > 0){
-
 				paddle.x -=10;
+				if((bola.y+10)==paddle.y){
+					bola.x -=10
+				}		
 				
 			}
 			if(yangDipencet[32]==true){
-
-				
+				bola.y -=10;
 			}
 		}
 
@@ -74,16 +79,16 @@
 
 		function gambarkan(){
 			ctx.clearRect(0,0,width,height);
-
-
 			ctx.beginPath();
+
 			//gambar paddle
 			ctx.rect(paddle.x, paddle.y, paddle.width, paddle.height);
 			ctx.fillStyle= "red";
 			ctx.fill();
 			ctx.stroke();
 			//gambar bola
-			ctx.arc(paddle.x+40,paddle.y-10,10,0,2*Math.PI, false);		
+			ctx.save();
+			ctx.arc(bola.x,bola.y,10,0,2*Math.PI, false);		
 			ctx.closePath();
 			ctx.fillStyle = bola.warna;
 
