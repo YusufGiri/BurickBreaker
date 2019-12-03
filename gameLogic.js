@@ -1,11 +1,24 @@
 const cvs = document.getElementById("burick");
 const ctx = cvs.getContext("2d");
-
+const gameover = document.getElementById("game_over");
 //menambah border
 cvs.style.border = "1px solid #0ff";
 
-//========================PADDLE===========================
+ctx.lineWidth = 3;
+
+
+
+
 //variabel game 
+let GAME_OVER = false; //game over status
+let LIFE = 3; //nyawa player
+let SCORE = 0; //init score
+let LEVEL = 1; //init level
+const LEVEL_MAX = 3;
+const SCORE_UNIT = 10;
+
+
+//========================PADDLE===========================
 //object paddle
 const PADDLE_WIDTH = 100;
 const PADDLE_HEIGHT = 20;
@@ -101,6 +114,24 @@ function resetBall(){
 	ball.dx - 3 * (Math.random()* 2-1);
 	ball.dt = -3;
 }
+
+//function game over
+function gameOver(){
+	if(LIFE <= 0){
+		showYoulose();
+		GAME_OVER = true;
+	}	
+}
+
+//bila menang
+function showYouWin(){
+	ctx.drawImage(WIN_IMG, 45, 80);
+}
+
+//bila kalah
+function showYoulose(){
+	ctx.drawImage(GAME_OVER_IMG,45,80);
+}
 //=========================================================
 
 
@@ -118,8 +149,22 @@ const brick = {
 	strokeColor : "#FFF"
 }
 
-let bricks = new Array();
+const brickLevelDua = {
+	row : 3,
+	column : 1,
+	width : 55,
+	height : 20,
+	offSetLeft : 20,
+	offSetTop : 20,
+	marginTop : 40,
+	fillColor : "#2e3548",
+	strokeColor : "#FFF"
+}
 
+let bricks = new Array();
+let bricks2 = new Array();
+
+//membuat balok lvl 1
 function createBricks(){
 	for(let i = 0; i < brick.row; i++){
 		bricks[i] = []; 
@@ -134,6 +179,25 @@ function createBricks(){
 }
 createBricks();
 
+//membuat balok lvl 2
+var tempColumn = brickLevelDua.column;
+function createBricks2(){ 
+	for(let i = 0; i < brickLevelDua.row; i++){
+		bricks2[i] = [];
+		for(let j = 0; j < tempColumn; j++){
+			bricks2[i][j] = {
+				x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+				y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+				status: true
+			}
+		}
+		tempColumn += 2;
+	}
+}
+createBricks2();
+
+//menggambar balok
+
 function drawBricks(){	
 	for(let i = 0; i< brick.row;i++){
 		for(let j = 0; j< brick.column; j++){
@@ -144,7 +208,69 @@ function drawBricks(){
 				ctx.strokeRect(bricks[i][j].x, bricks[i][j].y, brick.width, brick.height);
 			}
 		}
+		tempColumn += 2;
 	}
+	
+}
+
+// function drawBricks2(){	
+// 	for(let i = 0; i< brick.row;i++){
+// 		for(let j = 0; j< brick.column; j++){
+// 			if(bricks2[i][j].status){
+// 				ctx.fillStyle = brick.fillColor;
+// 				ctx.fillRect(bricks2[i][j].x, bricks2[i][j].y, brick.width, brick.height);
+// 				ctx.strokeStyle = brick.strokeColor;
+// 				ctx.strokeRect(bricks2[i][j].x, bricks2[i][j].y, brick.width, brick.height);
+// 			}
+// 		}
+// 		tempColumn += 2;
+// 	}
+	
+// }
+
+
+tempColumn = brickLevelDua.column;
+function drawBricks2(){	
+	
+	for(let i = 0; i < brickLevelDua.row; i++){
+		for(let j = 0; j < tempColumn; j++){
+			if(bricks2[i][j].status){
+				ctx.fillStyle = brick.fillColor;
+				ctx.fillRect(bricks2[i][j].x, bricks2[i][j].y, brick.width, brick.height);
+				ctx.strokeStyle = brick.strokeColor;
+				ctx.strokeRect(bricks2[i][j].x, bricks2[i][j].y, brick.width, brick.height);
+			}
+		}
+		tempColumn += 2;
+	}
+}
+
+//ketika permainan sudah selesai di level maksimal
+function levelDone(){
+	if (LEVEL > LEVEL_MAX) {
+		GAME_OVER = true;
+	}
+}
+
+//fungsi untuk menaikkan level
+function nextLevel(){
+	let levelCleared = true;
+
+	//pengecekan ketika semua balok sudah hancur
+	for (let i = 0; r < brick.row; r++){
+		for (let j = 0; j < brick.column; c++){
+			levelCleared = levelCleared && !bricks[r][c].status;
+		}
+	}
+}
+
+//menunjukkan stats permainan
+function showStats(text, textX, textY, img, imgX, imgY){
+	ctx.fillStyle = "#FFF";
+	ctx.fillText(text, textX, textY);
+
+	//gambar icon
+	ctx.drawImage(img, imgX, imgY, width = 25, height = 25);
 }
 //=========================================================
 
@@ -162,8 +288,7 @@ function ballPaddleCollision(){
 	}
 }
 //COLLISION BOLA DAN DINDING
-//nyawa player
-let LIFE = 3;
+
 //fungsi collision
 function ballWallCollision(){
 	//dinding kanan dan kiri
@@ -179,6 +304,7 @@ function ballWallCollision(){
 		LIFE--; //kurangi nyawa player
 		resetBall(); //kembalikan posisi bola
 		resetPaddle(); //kembalikan posisi paddle
+	
 	}
 }
 //COLLISION BOLA DAN BRICK / MUSUH
@@ -192,39 +318,96 @@ function ballBrickCollision(){
 	 				&& ball.y + ball.radius > b.y
 	 				&& ball.y - ball.radius < b.y + brick.height){
 
-	 				b.status = false;
 	 				ball.dy = - ball.dy;
+	 				b.status = false; //bricknya hancur
+	 				SCORE += SCORE_UNIT;
 	 			}
 	 		}
 	 	}
 	}
 }
+
+function levelUp(){
+	let isLevelDone = true;
+
+	for(let i = 0;i<brick.row;i++){
+		for(let j = 0;j<brick.column;j++){
+			isLevelDone = isLevelDone && !bricks[i][j].status;
+		}
+	}
+
+	if(isLevelDone){
+
+		if(LEVEL>=3){
+			return;
+		}else{
+			//brick.row++;
+			// createBricks2();
+			resetBall();
+			resetPaddle();
+			LEVEL++;
+		}
+	}
+	
+}
+
 //=========================================================
 
 //=====================MEMULAI GAME========================
 //menggambar game
 function draw(){
+
+	
 	drawPaddle();
+
 	drawBall();
-	drawBricks();
+	if(LEVEL==1){
+		drawBricks();
+	} else if(LEVEL == 2){
+		drawBricks2();
+	}
+
+	
+	//menunjukkan score
+	showStats(SCORE, 35, 25, SCORE_IMG, 5, 5);
+
+	//menunjukkan nyawa
+	showStats(LIFE, cvs.width - 25, 25, LIFE_IMG, cvs.width - 55, 5);
+
+	showStats(LEVEL, cvs.width / 2, 25, LEVEL_IMG, cvs.width / 2 - 30, 5);
 }
+
+
 //menggerakkan object
 function update(){
 	movePaddle();
+
 	moveBall();
+
 	ballWallCollision();
+
 	ballPaddleCollision();
+
 	ballBrickCollision();
+
+	gameOver();
+	levelUp();
+	createBricks2();
 }
 
-const BG_IMG = new Image();
-BG_IMG.src = "bg_img.jpg";
+//const BG_IMG = new Image();
+//BG_IMG.src = "bg_img.jpg";
 function loop(){
 	//ctx.clear(0,0,cvs.width,cvs.height);
 	ctx.drawImage(BG_IMG,0,0);
 	draw();
 	update();
-	requestAnimationFrame(loop);
+
+	if(!GAME_OVER){
+		requestAnimationFrame(loop);		
+	}
+	
 }
+
 loop();
 //=========================================================
