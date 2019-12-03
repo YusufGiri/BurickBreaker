@@ -177,27 +177,11 @@ function createBricks(){
 		}
 	}
 }
+
 createBricks();
 
-//membuat balok lvl 2
-var tempColumn = brickLevelDua.column;
-function createBricks2(){ 
-	for(let i = 0; i < brickLevelDua.row; i++){
-		bricks2[i] = [];
-		for(let j = 0; j < tempColumn; j++){
-			bricks2[i][j] = {
-				x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
-				y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
-				status: true
-			}
-		}
-		tempColumn += 2;
-	}
-}
-createBricks2();
 
 //menggambar balok
-
 function drawBricks(){	
 	for(let i = 0; i< brick.row;i++){
 		for(let j = 0; j< brick.column; j++){
@@ -208,42 +192,42 @@ function drawBricks(){
 				ctx.strokeRect(bricks[i][j].x, bricks[i][j].y, brick.width, brick.height);
 			}
 		}
-		tempColumn += 2;
+		//tempColumn += 2;
 	}
 	
 }
 
-// function drawBricks2(){	
-// 	for(let i = 0; i< brick.row;i++){
-// 		for(let j = 0; j< brick.column; j++){
-// 			if(bricks2[i][j].status){
-// 				ctx.fillStyle = brick.fillColor;
-// 				ctx.fillRect(bricks2[i][j].x, bricks2[i][j].y, brick.width, brick.height);
-// 				ctx.strokeStyle = brick.strokeColor;
-// 				ctx.strokeRect(bricks2[i][j].x, bricks2[i][j].y, brick.width, brick.height);
-// 			}
-// 		}
-// 		tempColumn += 2;
-// 	}
-	
-// }
+
+function createBricks2(){
+	for(let i = 0; i < brick.row; i++){
+		bricks2[i] = []; 
+		for(let j = 0; j<brick.column; j++){
+			bricks2[i][j] = {
+				x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+				y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+				status: true
+			}
+		}
+	}
+}
 
 
-tempColumn = brickLevelDua.column;
 function drawBricks2(){	
-	
-	for(let i = 0; i < brickLevelDua.row; i++){
-		for(let j = 0; j < tempColumn; j++){
+	tempColumn = brickLevelDua.column;
+	for(let i = 0; i< brick.row;i++){
+		for(let j = 0; j< brick.column; j++){
 			if(bricks2[i][j].status){
-				ctx.fillStyle = brick.fillColor;
-				ctx.fillRect(bricks2[i][j].x, bricks2[i][j].y, brick.width, brick.height);
-				ctx.strokeStyle = brick.strokeColor;
-				ctx.strokeRect(bricks2[i][j].x, bricks2[i][j].y, brick.width, brick.height);
+				ctx.fillStyle = brickLevelDua.fillColor;
+				ctx.fillRect(bricks2[i][j].x, bricks2[i][j].y, brickLevelDua.width, brickLevelDua.height);
+				ctx.strokeStyle = brickLevelDua.strokeColor;
+				ctx.strokeRect(bricks2[i][j].x, bricks2[i][j].y, brickLevelDua.width, brickLevelDua.height);
 			}
 		}
 		tempColumn += 2;
 	}
+	
 }
+
 
 //ketika permainan sudah selesai di level maksimal
 function levelDone(){
@@ -342,7 +326,7 @@ function levelUp(){
 			return;
 		}else{
 			//brick.row++;
-			// createBricks2();
+			createBricks2();
 			resetBall();
 			resetPaddle();
 			LEVEL++;
