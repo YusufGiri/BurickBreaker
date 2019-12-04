@@ -6,17 +6,47 @@ cvs.style.border = "1px solid #0ff";
 
 ctx.lineWidth = 3;
 
-
-
-
 //variabel game 
 let GAME_OVER = false; //game over status
-let LIFE = 3; //nyawa player
+let LIFE = 9999999; //nyawa player
 let SCORE = 0; //init score
-let LEVEL = 1; //init level
+let LEVEL = 3; //init level
 const LEVEL_MAX = 3;
 const SCORE_UNIT = 10;
 
+var WarnaMusuh = ["#ff0000","#ffcd05","#00ff00","#ffffff"];
+//penghalang level 2
+const TEMBOK_WIDTH = 150;
+const TEMBOK_HEIGHT = 20;
+const TEMBOK_MARGIN_BOTTOM = 50;
+const tembok = {
+	x : 0,
+	y : cvs.height/2,
+	width : TEMBOK_WIDTH,
+	height : TEMBOK_HEIGHT,
+	dx : 5
+}
+const tembok2 = {
+	x : cvs.width - TEMBOK_WIDTH,
+	y : cvs.height/2,
+	width : TEMBOK_WIDTH,
+	height : TEMBOK_HEIGHT,
+	dx : 5
+}
+const tembok3 = {
+	x : 0,
+	y : cvs.height/2 + 50,
+	width : TEMBOK_WIDTH + 150,
+	height : TEMBOK_HEIGHT,
+	dx : 5
+}
+const tembok4 = {
+	x : cvs.width - TEMBOK_WIDTH - 150,
+	y : cvs.height/2 - 100,
+	width : TEMBOK_WIDTH + 150,
+	height : TEMBOK_HEIGHT,
+	dx : 5
+}
 
 //========================PADDLE===========================
 //object paddle
@@ -145,89 +175,273 @@ const brick = {
 	offSetLeft : 20,
 	offSetTop : 20,
 	marginTop : 40,
-	fillColor : "#2e3548",
 	strokeColor : "#FFF"
 }
 
 const brickLevelDua = {
-	row : 3,
-	column : 1,
+	row : 4,
+	column : 5,
 	width : 55,
 	height : 20,
 	offSetLeft : 20,
+	offSetTop : 10,
+	marginTop : 10,
+	strokeColor : "#FFF"
+}
+
+const brickLevelTiga = {
+	row : 4,
+	column : 6,
+	width : 55,
+	height : 20,
+	offSetLeft : 10,
 	offSetTop : 20,
-	marginTop : 40,
-	fillColor : "#2e3548",
+	marginTop : 1,
 	strokeColor : "#FFF"
 }
 
 let bricks = new Array();
 let bricks2 = new Array();
+let bricks3 = new Array();
 
-//membuat balok lvl 1
-function createBricks(){
-	for(let i = 0; i < brick.row; i++){
-		bricks[i] = []; 
-		for(let j = 0; j<brick.column; j++){
-			bricks[i][j] = {
-				x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
-				y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
-				status: true
+//membuat balok
+function createBricks(brick, bricks, lvl){
+	if(lvl==1){
+		for(let i = 0; i < brick.row; i++){
+			bricks[i] = []; 
+			for(let j = 0; j<brick.column; j++){
+				if(i==0 && j == 0 || i==0 && j==(brick.column-1)/2 || i==0 && j==brick.column-1){
+					bricks[i][j] = {
+						x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+						y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+						color: WarnaMusuh[3],
+						outline: WarnaMusuh[3],
+						life: 4,
+						status: true
+					}
+				}else if(i==1 && j == 0 || i==1 && j==(brick.column-1)/2 || i==1 && j==brick.column-1){
+					bricks[i][j] = {
+						x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+						y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+						color: WarnaMusuh[2],
+						outline: WarnaMusuh[2],
+						life: 3,
+						status: true
+					}
+				}else if(i==1 && j%2!=0){
+					bricks[i][j] = {
+						x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+						y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+						color: WarnaMusuh[1],
+						outline: WarnaMusuh[1],
+						life: 2,
+						status: true
+					}
+				}else{
+					bricks[i][j] = {
+						x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+						y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+						color: WarnaMusuh[0],
+						outline: WarnaMusuh[0],
+						life: 1,
+						status: true
+					}
+				}
+				
+			}
+		}
+	}else if(lvl==2){
+		for(let i = 0; i < brick.row; i++){
+			bricks[i] = []; 
+			for(let j = 0; j<brick.column; j++){
+				if(i==0 && j==0 || i==0 && j==brick.column-1){
+					bricks[i][j] = {
+						x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+						y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+						color: WarnaMusuh[2],
+						outline: WarnaMusuh[2],
+						life: 3,
+						status: true
+					}
+				}else if(i==0 || i==1 && j==(brick.column-1)/2){
+					bricks[i][j] = {
+						x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+						y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+						color: WarnaMusuh[3],
+						outline: WarnaMusuh[3],
+						life: 4,
+						status: true
+					}
+				}else if(i==1 && j==0 || i==1 && j==brick.column-1 || i==2 && j%2!=0 || i==3 && j==(brick.column-1)/2){
+					bricks[i][j] = {
+						x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+						y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+						color: WarnaMusuh[1],
+						outline: WarnaMusuh[1],
+						life: 2,
+						status: true
+					}
+				}else{
+					bricks[i][j] = {
+						x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+						y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+						color: WarnaMusuh[0],
+						outline: WarnaMusuh[0],
+						life: 1,
+						status: true
+					}
+				}
+			}
+		}
+	}else if(lvl==3){
+		for(let i = 0; i < brick.row; i++){
+			bricks[i] = []; 
+			if(i==0){
+				bricks[i][0] = {
+					x: 0 * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+					y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+					color: "#000000",
+					outline: "#ffffff",
+					life: 10,
+					dx: 5,
+					status: true
+				}
+			}else{
+				for(let j = 0; j<brick.column; j++){
+					// if(i==0 && j==0 || i==0 && j==brick.column-1 || i==2 && j%2!=0){
+					// 	bricks[i][j] = {
+					// 		x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+					// 		y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+					// 		color: WarnaMusuh[3],
+					// 		outline: WarnaMusuh[3],
+					// 		life: 4,
+					// 		status: true
+					// 	}
+					// }
+					if(i==1 && j%2!=0){
+						bricks[i][j] = {
+							x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+							y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+							color: WarnaMusuh[1],
+							outline: WarnaMusuh[1],
+							life: 2,
+							status: true
+						}
+					}else if(i==1){
+						bricks[i][j] = {
+							x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+							y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+							color: WarnaMusuh[0],
+							outline: WarnaMusuh[0],
+							life: 1,
+							status: true
+						}
+					}else if(i==2){
+						if(j%2==0){
+							bricks[i][j] = {
+								x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+								y: tembok4.y + (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+								color: WarnaMusuh[0],
+								outline: WarnaMusuh[0],
+								life: 1,
+								status: true
+							}	
+						}else if(j%2!=0){
+							bricks[i][j] = {
+								x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+								y: (tembok4.y + (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop),
+								color: WarnaMusuh[2],
+								outline: WarnaMusuh[2],
+								life: 3,
+								status: true
+							}
+						}
+					}else if(i==3){
+						if(j%2==0){
+							bricks[i][j] = {
+								x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+								y: bricks[i-1][j].y + (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+								color: WarnaMusuh[1],
+								outline: WarnaMusuh[1],
+								life: 2,
+								status: true
+							}
+						}else if(j%2!=0){
+							bricks[i][j] = {
+								x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
+								y: bricks[i-1][j].y * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
+								color: WarnaMusuh[0],
+								outline: WarnaMusuh[0],
+								life: 1,
+								status: true
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 }
-
-createBricks();
-
-
+// createBricks(brick,bricks,LEVEL);
+createBricks(brickLevelTiga,bricks3,LEVEL);
+function moveLevel3Boss(){
+	if(bricks3[0][0].x + bricks3[0][0].width < cvs.width){ 
+		bricks3[0][0].x += bricks3[0][0].dx; 
+	}else if(bricks[0][0].x + bricks3[0][0].width == cvs.width){
+		bricks3[0][0].dx = - bricks3[0][0].dx; 
+		bricks3[0][0].x += bricks3[0][0].dx;
+	}
+	else if(bricks3[0][0].x == 0){
+		bricks3[0][0].dx = -bricks3[0][0].dx; 
+	}
+}
 //menggambar balok
-function drawBricks(){	
-	for(let i = 0; i< brick.row;i++){
-		for(let j = 0; j< brick.column; j++){
-			if(bricks[i][j].status){
-				ctx.fillStyle = brick.fillColor;
-				ctx.fillRect(bricks[i][j].x, bricks[i][j].y, brick.width, brick.height);
-				ctx.strokeStyle = brick.strokeColor;
-				ctx.strokeRect(bricks[i][j].x, bricks[i][j].y, brick.width, brick.height);
+function drawBricks(brick, bricks, level){
+	if(level!=3){
+		for(let i = 0; i< brick.row;i++){
+			for(let j = 0; j< brick.column; j++){
+				if(bricks[i][j].status){
+					ctx.fillStyle = bricks[i][j].color;
+					ctx.fillRect(bricks[i][j].x, bricks[i][j].y, brick.width, brick.height);
+					ctx.strokeStyle = bricks[i][j].outline;
+					ctx.strokeRect(bricks[i][j].x, bricks[i][j].y, brick.width, brick.height);
+				}
 			}
 		}
-		//tempColumn += 2;
-	}
-	
-}
-
-
-function createBricks2(){
-	for(let i = 0; i < brick.row; i++){
-		bricks2[i] = []; 
-		for(let j = 0; j<brick.column; j++){
-			bricks2[i][j] = {
-				x: j * (brick.offSetLeft + brick.width) + brick.offSetLeft, 
-				y: i * (brick.offSetTop + brick.height) + brick.offSetTop + brick.marginTop,
-				status: true
+	}else if(level==3){
+		for(let i = 0; i< brick.row;i++){
+			if(i==0){
+				if(bricks[i][0].status){
+						ctx.fillStyle = bricks[i][0].color;
+						ctx.fillRect(bricks[i][0].x, bricks[i][0].y, brick.width, brick.height);
+						ctx.strokeStyle = bricks[i][0].outline;
+						ctx.strokeRect(bricks[i][0].x, bricks[i][0].y, brick.width, brick.height);
+				}
+			}else{
+				for(let j = 0; j< brick.column; j++){
+					if(bricks[i][j].status){
+						ctx.fillStyle = bricks[i][j].color;
+						ctx.fillRect(bricks[i][j].x, bricks[i][j].y, brick.width, brick.height);
+						ctx.strokeStyle = bricks[i][j].outline;
+						ctx.strokeRect(bricks[i][j].x, bricks[i][j].y, brick.width, brick.height);
+					}
+				}
 			}
 		}
 	}
 }
 
-
-function drawBricks2(){	
-	tempColumn = brickLevelDua.column;
-	for(let i = 0; i< brick.row;i++){
-		for(let j = 0; j< brick.column; j++){
-			if(bricks2[i][j].status){
-				ctx.fillStyle = brickLevelDua.fillColor;
-				ctx.fillRect(bricks2[i][j].x, bricks2[i][j].y, brickLevelDua.width, brickLevelDua.height);
-				ctx.strokeStyle = brickLevelDua.strokeColor;
-				ctx.strokeRect(bricks2[i][j].x, bricks2[i][j].y, brickLevelDua.width, brickLevelDua.height);
-			}
-		}
-		tempColumn += 2;
-	}
-	
+//gambar tembok lvl2
+function drawTembok(tembok,tembok2){
+	ctx.fillStyle = "#000";
+	ctx.fillRect(tembok.x,tembok.y,tembok.width,tembok.height);
+	ctx.strokeStyle = "#ffcd05";
+	ctx.strokeRect(tembok.x,tembok.y,tembok.width,tembok.height);
+	ctx.fillStyle = "#000";
+	ctx.fillRect(tembok2.x,tembok2.y,tembok2.width,tembok2.height);
+	ctx.strokeStyle = "#ffcd05";
+	ctx.strokeRect(tembok2.x,tembok2.y,tembok2.width,tembok2.height);
 }
-
 
 //ketika permainan sudah selesai di level maksimal
 function levelDone(){
@@ -273,6 +487,23 @@ function ballPaddleCollision(){
 }
 //COLLISION BOLA DAN DINDING
 
+// colision penghalang
+function tembokCollision(tembok){
+	let b = tembok;
+	 	if(ball.x + ball.radius > b.x
+			&& ball.x - ball.radius < b.x + tembok.width
+			&& ball.y + ball.radius > b.y
+			&& ball.y - ball.radius < b.y + tembok.height){
+			ball.dy = - ball.dy;
+	 	}else if(ball.y + ball.radius > b.y
+			&& ball.y - ball.radius < b.y + tembok.height
+			&& ball.x + ball.radius > b.x
+			&& ball.x - ball.radius < b.x + tembok.width){
+	 		ball.dx = - ball.dx;
+	 	}
+	 		
+}
+
 //fungsi collision
 function ballWallCollision(){
 	//dinding kanan dan kiri
@@ -288,72 +519,124 @@ function ballWallCollision(){
 		LIFE--; //kurangi nyawa player
 		resetBall(); //kembalikan posisi bola
 		resetPaddle(); //kembalikan posisi paddle
-	
 	}
 }
 //COLLISION BOLA DAN BRICK / MUSUH
-function ballBrickCollision(){
-	for(let i = 0; i< brick.row; i++){
-	 	for(let j = 0; j<brick.column;j++){
-	 		let b = bricks[i][j];
-	 		if(b.status){
-	 			if(ball.x + ball.radius > b.x
-	 				&& ball.x - ball.radius < b.x + brick.width
-	 				&& ball.y + ball.radius > b.y
-	 				&& ball.y - ball.radius < b.y + brick.height){
-
-	 				ball.dy = - ball.dy;
-	 				b.status = false; //bricknya hancur
-	 				SCORE += SCORE_UNIT;
-	 			}
-	 		}
-	 	}
+function ballBrickCollision(brick,bricks,level){
+	if(level==3){
+		for(let i = 0; i< brick.row; i++){
+			if(i==0){
+				let b = bricks[i][0];
+			 	if(b.status){
+			 		if(ball.x + ball.radius > b.x
+			 			&& ball.x - ball.radius < b.x + brick.width
+			 			&& ball.y + ball.radius > b.y
+			 			&& ball.y - ball.radius < b.y + brick.height){
+			 			ball.dy = - ball.dy;
+			 			b.life--; 
+			 			if(b.life == 0)
+			 				b.status = false;//bricknya hancur
+			 		}
+			 	}
+			}else{
+			 	for(let j = 0; j<brick.column;j++){
+			 		let b = bricks[i][j];
+			 		if(b.status){
+			 			if(ball.x + ball.radius > b.x
+			 				&& ball.x - ball.radius < b.x + brick.width
+			 				&& ball.y + ball.radius > b.y
+			 				&& ball.y - ball.radius < b.y + brick.height){
+			 				ball.dy = - ball.dy;
+			 				b.life--; 
+			 				if(b.life == 0)
+			 					b.status = false;//bricknya hancur
+			 				else
+			 					b.outline = WarnaMusuh[b.life-1];
+			 			}
+			 		}
+			 	}
+			}
+		}
+	}else{
+		for(let i = 0; i< brick.row; i++){
+		 	for(let j = 0; j<brick.column;j++){
+		 		let b = bricks[i][j];
+		 		if(b.status){
+		 			if(ball.x + ball.radius > b.x
+		 				&& ball.x - ball.radius < b.x + brick.width
+		 				&& ball.y + ball.radius > b.y
+		 				&& ball.y - ball.radius < b.y + brick.height){
+		 				ball.dy = - ball.dy;
+		 				b.life--; 
+		 				if(b.life == 0)
+		 					b.status = false;//bricknya hancur
+		 				else
+		 					b.outline = WarnaMusuh[b.life-1];
+		 				//SCORE += SCORE_UNIT;
+		 			}
+		 		}
+		 	}
+		}
 	}
 }
 
-function levelUp(){
+function levelUp(brick, bricks){
 	let isLevelDone = true;
+	if(LEVEL==3){
+		for(let i = 0;i<brick.row;i++){
+			if(i==0){
+				isLevelDone = isLevelDone && !bricks[i][0].status;
 
-	for(let i = 0;i<brick.row;i++){
-		for(let j = 0;j<brick.column;j++){
-			isLevelDone = isLevelDone && !bricks[i][j].status;
+			}else{
+				for(let j = 0;j<brick.column;j++){
+					isLevelDone = isLevelDone && !bricks[i][j].status;
+				}
+			}
+		}
+	}else{
+		for(let i = 0;i<brick.row;i++){
+			for(let j = 0;j<brick.column;j++){
+				isLevelDone = isLevelDone && !bricks[i][j].status;
+			}
 		}
 	}
-
 	if(isLevelDone){
-
 		if(LEVEL>=3){
 			return;
-		}else{
+		}else if(LEVEL==1){
 			//brick.row++;
-			createBricks2();
+			LEVEL++;
+			createBricks(brickLevelDua, bricks2, LEVEL);
 			resetBall();
 			resetPaddle();
+		}else if(LEVEL == 2){
 			LEVEL++;
+			createBricks(brickLevelTiga, bricks3, LEVEL);
+			resetBall();
+			resetPaddle();
+			
 		}
 	}
-	
 }
-
 //=========================================================
 
 //=====================MEMULAI GAME========================
 //menggambar game
 function draw(){
-
-	
 	drawPaddle();
-
 	drawBall();
 	if(LEVEL==1){
-		drawBricks();
+		drawBricks(brick,bricks,LEVEL);
 	} else if(LEVEL == 2){
-		drawBricks2();
+		drawBricks(brickLevelDua, bricks2,LEVEL);
+		drawTembok(tembok,tembok2);
+	} else if(LEVEL == 3){
+		drawBricks(brickLevelTiga, bricks3,LEVEL);
+		drawTembok(tembok3,tembok4);
 	}
 
-	
-	//menunjukkan score
-	showStats(SCORE, 35, 25, SCORE_IMG, 5, 5);
+	// //menunjukkan score
+	// showStats(SCORE, 35, 25, SCORE_IMG, 5, 5);
 
 	//menunjukkan nyawa
 	showStats(LIFE, cvs.width - 25, 25, LIFE_IMG, cvs.width - 55, 5);
@@ -365,22 +648,30 @@ function draw(){
 //menggerakkan object
 function update(){
 	movePaddle();
-
 	moveBall();
-
 	ballWallCollision();
-
 	ballPaddleCollision();
-
-	ballBrickCollision();
-
 	gameOver();
-	levelUp();
-	createBricks2();
+
+	if(LEVEL == 1){
+		ballBrickCollision(brick,bricks,LEVEL);
+		levelUp(brick,bricks);
+	}else if(LEVEL == 2){
+		ballBrickCollision(brickLevelDua,bricks2,LEVEL);
+		tembokCollision(tembok);
+		tembokCollision(tembok2);
+		levelUp(brickLevelDua, bricks2);
+	}else if(LEVEL == 3){
+		moveLevel3Boss();
+		ballBrickCollision(brickLevelTiga,bricks3,LEVEL);
+		tembokCollision(tembok3);
+		tembokCollision(tembok4);
+		levelUp(brickLevelTiga,bricks3);
+	}
+	
 }
 
-//const BG_IMG = new Image();
-//BG_IMG.src = "bg_img.jpg";
+
 function loop(){
 	//ctx.clear(0,0,cvs.width,cvs.height);
 	ctx.drawImage(BG_IMG,0,0);
